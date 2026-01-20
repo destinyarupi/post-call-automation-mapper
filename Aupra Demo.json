@@ -1,0 +1,523 @@
+{
+  "name": "Aupra Demo",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -304,
+        0
+      ],
+      "id": "c9059359-b5b0-45ed-83bf-f4cc24e42623",
+      "name": "Telegram Trigger",
+      "webhookId": "ecc0f479-e3df-45f1-bbdc-45062015ff7f",
+      "credentials": {
+        "telegramApi": {
+          "id": "t6SFFDSbbdrfdUgH",
+          "name": "post-call-automation-mapper"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the binary data\nconst inputData = $input.first();\nconst binaryData = inputData.binary.data;\n\n// Create new binary data with correct MIME type and extension\nconst newBinaryData = {\n  ...binaryData,\n  mimeType: 'audio/mpeg',  // Change to audio/mpeg\n  fileExtension: 'mp3',     // Change extension to mp3\n  fileName: binaryData.fileName.replace('.oga', '.mp3')  // Update filename\n};\n\nreturn [{\n  json: inputData.json,\n  binary: {\n    data: newBinaryData\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        -208
+      ],
+      "id": "529666aa-1053-428f-acb7-469603e2d34a",
+      "name": "Convert Audio Format"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        -208
+      ],
+      "id": "e76a93ad-0793-4dc0-a87a-e389eba4235a",
+      "name": "Transcribe Voice to Text",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TCPsNckVcUPKdHfs",
+          "name": "Google Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice || $json.message.audio }}",
+                    "rightValue": "=",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "ba03f4cd-e867-49fa-8473-8afb0d3490e6"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1d508486-0edf-4fa8-a40e-0a82366474b8",
+                    "leftValue": "={{ $json.message.document.file_name }}",
+                    "rightValue": "=",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8f517470-78ba-4613-8f2a-6a8c7c5b99fb",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "=",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -96,
+        -16
+      ],
+      "id": "b74bd769-0934-45e3-84de-a605537160fc",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        144,
+        -208
+      ],
+      "id": "8f8583d3-494c-4b9f-8f90-926540dcc78d",
+      "name": "Get a file",
+      "webhookId": "73f5ea78-63c5-4604-b216-3ffadd6b7738",
+      "credentials": {
+        "telegramApi": {
+          "id": "t6SFFDSbbdrfdUgH",
+          "name": "post-call-automation-mapper"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.document.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        0
+      ],
+      "id": "9189a151-0450-4601-8368-bc35cfa46918",
+      "name": "Get a file1",
+      "webhookId": "73f5ea78-63c5-4604-b216-3ffadd6b7738",
+      "credentials": {
+        "telegramApi": {
+          "id": "t6SFFDSbbdrfdUgH",
+          "name": "post-call-automation-mapper"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "Transcribe the file",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        512,
+        0
+      ],
+      "id": "0323999a-c657-4795-a634-d5a019305941",
+      "name": "Analyze document",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TCPsNckVcUPKdHfs",
+          "name": "Google Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfdc2501-b765-47e5-85d9-0d919369400d",
+              "name": "text",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        208
+      ],
+      "id": "94b3d7a4-42db-45ae-9104-6942665977c9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        864,
+        -16
+      ],
+      "id": "31c446c0-2aaf-4333-8fae-4b9b103e978e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the following post-call input and generate a structured\nautomation opportunity brief.\n\nInput:\n{{ $json.content.parts[0].text \n|| $json.text }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an AI automation consultant.\n\nYour role is to analyze discovery call summaries or transcripts and\nproduce a clear, structured automation opportunity brief.\n\nThink like a consulting team that:\n- identifies operational bottlenecks\n- maps them to automation opportunities\n- prioritizes work based on ROI and dependency\n- explains why a specific sequence makes sense\n\nDo not mention AI.\nDo not explain your internal reasoning.\nFocus on clarity and operational usefulness.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "78eee48e-f354-4fe0-a2c9-992f3db03816",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"client_snapshot\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"industry\": { \"type\": \"string\" },\n        \"team_size\": { \"type\": \"string\" },\n        \"tools_used\": {\n          \"type\": \"array\",\n          \"items\": { \"type\": \"string\" }\n        }\n      },\n      \"required\": [\"industry\", \"team_size\", \"tools_used\"]\n    },\n    \"key_bottlenecks\": {\n      \"type\": \"array\",\n      \"items\": { \"type\": \"string\" }\n    },\n    \"automation_opportunities\": {\n      \"type\": \"array\",\n      \"items\": { \"type\": \"string\" }\n    },\n    \"recommended_starting_point\": {\n      \"type\": \"string\"\n    },\n    \"next_steps\": {\n      \"type\": \"array\",\n      \"items\": { \"type\": \"string\" }\n    },\n    \"reasoning_for_sequence\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"client_snapshot\",\n    \"key_bottlenecks\",\n    \"automation_opportunities\",\n    \"recommended_starting_point\",\n    \"next_steps\",\n    \"reasoning_for_sequence\"\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1216,
+        208
+      ],
+      "id": "148b4603-11f4-446c-a76c-408da2bd913e",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "const o = $input.first().json.output\n\nreturn [{\n  json: {\n    message: `\n📌 *Automation Opportunity Brief*\n\n*Industry:* ${o.client_snapshot.industry}\n*Team Size:* ${o.client_snapshot.team_size}\n*Tools:* ${o.client_snapshot.tools_used.join(\", \")}\n\n*Key Bottlenecks:*\n${o.key_bottlenecks.map((b, i) => `${i + 1}. ${b}`).join(\"\\n\")}\n\n*Automation Opportunities:*\n${o.automation_opportunities.map((a, i) => `${i + 1}. ${a}`).join(\"\\n\")}\n\n────────────────────\n\n🧭 *Recommended Next Steps*\n\n*Start With:* ${o.recommended_starting_point}\n\n*Next Steps:*\n${o.next_steps.map((s, i) => `${i + 1}. ${s}`).join(\"\\n\")}\n\n*Why This Order:*\n${o.reasoning_for_sequence}\n`\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        0
+      ],
+      "id": "381b396a-3573-4912-9ead-74f4ade43ac9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "chatId": "6621707339",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $('Telegram Trigger').item.json.message.message_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "ba026800-9461-45c1-b3c6-4bcd863c42d9",
+      "name": "Send a text message",
+      "webhookId": "5e880e93-38dd-4c9e-bedf-e53cb768383f",
+      "credentials": {
+        "telegramApi": {
+          "id": "t6SFFDSbbdrfdUgH",
+          "name": "post-call-automation-mapper"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        208
+      ],
+      "id": "26d36063-1af1-457f-a1b6-24766b384b4b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TCPsNckVcUPKdHfs",
+          "name": "Google Gemini"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Audio Format": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Voice to Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Convert Audio Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file1": {
+      "main": [
+        [
+          {
+            "node": "Analyze document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Voice to Text": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze document": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "c84c8352-33ce-4720-9b0f-95679e3693ab",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8b006a0c2860e2ebe4a18b401240e0a3d67106ad5486c566af12dd05e34cbe2a"
+  },
+  "id": "Th65x5cRESpJE57D",
+  "tags": []
+}
