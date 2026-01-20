@@ -1,29 +1,32 @@
 # Post-Call Automation Opportunity Mapper (n8n)
 
-I built this after noticing a pattern.
+This is a small internal tool built to support the *thinking* that happens
+after discovery and consulting calls.
 
-Most of the hard work in automation doesn’t happen during the build.
-It happens *after* the conversation — when someone has to turn messy notes
-into a clear plan.
+Most automation work doesn’t start with nodes or code.
+It starts with turning messy conversations into clear, defensible decisions.
 
-That step is repetitive, subjective, and surprisingly draining.
-
-So instead of doing it manually every time, I automated the thinking.
+This system exists to make that step faster and more consistent.
 
 ---
 
-## The problem this solves
+## The problem it addresses
 
-After a discovery or consulting call, teams usually end up with:
-- call recordings
-- rough summaries
-- half-formed ideas
-- and a vague sense of “we should automate something here”
+After a discovery call, teams usually have:
+- a call recording or transcript
+- rough notes or summaries
+- a mental list of “things we could automate”
 
 What’s missing is structure.
 
-This system exists to turn post-call chaos into a clear,
-prioritized automation plan — consistently.
+Turning that information into:
+- a clear automation opportunity map
+- a logical starting point
+- and a phased implementation plan
+
+…is valuable work, but it’s also repetitive and mentally expensive.
+
+This tool supports that process.
 
 ---
 
@@ -31,68 +34,72 @@ prioritized automation plan — consistently.
 
 At a high level:
 
-Post-call input → structured analysis → automation plan + next steps
+Post-call input → structured analysis → automation brief + next steps
 
 In practice:
 
-1. A team member sends either:
+1. A team member sends one of the following into Telegram:
    - a call summary
-   - a transcript
+   - a transcript file
    - or an audio recording
-   into Telegram
 
 2. The system:
    - transcribes audio if needed
    - extracts operational context
    - identifies bottlenecks
-   - maps them to automation categories
+   - maps them to automation opportunities
 
 3. It returns:
-   - an Automation Opportunity Brief
+   - a structured Automation Opportunity Brief
    - plus recommended next steps and sequencing logic
 
-No dashboards.
-No templates.
-Just clarity.
+This is intended for **internal use**, not clients.
 
 ---
 
 ## Why Telegram
 
-Telegram removes friction.
+Telegram keeps the workflow lightweight.
 
-It’s fast, familiar, and already used for internal workflows.
-The goal isn’t to introduce a new tool —
-it’s to fit into how teams already work.
+No dashboards.
+No new interfaces.
+Just a familiar place to drop post-call inputs and receive clarity.
 
 ---
 
 ## What this demonstrates
 
-This isn’t a client-facing product.
+This system isn’t about automation for automation’s sake.
 
-It’s a thinking tool.
+It demonstrates:
+- how to encode consulting judgment
+- how to standardize decision-making
+- how to reduce post-call cognitive load
+- and how to support delivery teams without replacing them
 
-It shows how I approach automation beyond wiring nodes:
-- encoding judgment
-- standardizing decisions
-- and reducing cognitive load for teams doing complex work
-
-Technically, it demonstrates:
-- voice + text ingestion
-- AI-driven structure extraction
-- decision logic and prioritization
-- clean internal tooling with n8n
+Technically, it shows:
+- multi-input handling (text, file, audio)
+- structured AI reasoning
+- enforced output schemas
+- clean internal tooling built with n8n
 
 ---
 
 ## How it works (high-level)
 
-1. Telegram receives text or audio  
-2. Audio is transcribed if needed  
-3. AI extracts structure and pain points  
-4. AI applies automation prioritization logic  
-5. A clean brief + next steps are sent back to Telegram  
+1. Telegram receives a message (text, file, or audio)
+2. Audio is transcribed if necessary
+3. A single AI agent analyzes the input
+4. The agent outputs a structured automation brief
+5. The result is formatted and sent back to Telegram
 
-The system doesn’t replace expertise.
-It supports it.
+---
+
+## Optional: Test the bot
+
+The Telegram bot used for this workflow is live and can be tested
+with your own call summaries, transcripts, or audio recordings.
+
+This is an internal utility, not a client-facing tool.
+
+👉 **Bot link:** [Post Call Mapper](https://t.me/post_call_mapper_bot)
